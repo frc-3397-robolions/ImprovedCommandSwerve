@@ -31,6 +31,7 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     if(driverController.getStartButton())
       fieldRelative=!fieldRelative;
+
     dt.drive(driverController.getLeftX()*MAX_SPEED
       , driverController.getLeftY()*MAX_SPEED
       , driverController.getRightX()*MAX_ANGULAR_SPEED
