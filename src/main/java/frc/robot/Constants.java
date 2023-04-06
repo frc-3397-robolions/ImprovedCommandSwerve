@@ -31,6 +31,8 @@ public final class Constants {
 
     public static final double MAX_SPEED = 3;
     public static final double MAX_ANGULAR_SPEED = Math.PI;
+    public static final double WHEEL_RADIUS = 0.0508;
+    public static final int DRIVETRAIN_ENCODER_RESOLUTION = 4096;
 
     static class VisionConstants {
         static final Transform3d robotToCam =

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -31,6 +32,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,driverController));
     // Configure the trigger bindings
     configureBindings();
   }
