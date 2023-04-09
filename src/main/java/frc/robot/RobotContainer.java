@@ -10,11 +10,25 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,12 +43,18 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController driverController = new XboxController(DRIVER_CONTROLLER_PORT);
   private final CommandJoystick operatorJoystick = new CommandJoystick(OPERATOR_CONTROLLER_PORT);
+  private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    autoChooser = new SendableChooser<>();
+    SmartDashboard.putData(autoChooser);
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain,driverController));
     // Configure the trigger bindings
     configureBindings();
+    configureAutoCommands();
+
+    
   }
 
   /**
@@ -57,6 +77,35 @@ public class RobotContainer {
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
+  private void configureAutoCommands(){
+    AUTO_EVENT_MAP.put("shoot", new PrintCommand("*shoots*"));
+    AUTO_EVENT_MAP.put("pickup", new PrintCommand("*picks up*"));
+    AUTO_EVENT_MAP.put("drop", new PrintCommand("*drops*"));
+
+    List<PathPlannerTrajectory> leftAuto = PathPlanner.loadPathGroup("2CubeAutoLeft", AUTO_MAX_VEL, AUTO_MAX_ACCEL);
+    List<PathPlannerTrajectory> midAuto = PathPlanner.loadPathGroup("2CubeAutoMiddle", AUTO_MAX_VEL, AUTO_MAX_ACCEL);
+    List<PathPlannerTrajectory> rightAuto = PathPlanner.loadPathGroup("2CubeAutoRight", AUTO_MAX_VEL, AUTO_MAX_ACCEL);
+
+    SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+    drivetrain::getPose, // Pose2d supplier
+    drivetrain::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
+    new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+    new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    drivetrain::driveFromChassisSpeeds, // Module states consumer used to output to the drive subsystem
+    AUTO_EVENT_MAP,
+    true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+    drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
+  );
+    Command TwoCubeAutoLeft = autoBuilder.fullAuto(leftAuto);
+    autoChooser.setDefaultOption("TwoCubeAutoLeft", TwoCubeAutoLeft);
+
+    Command TwoCubeAutoMid = autoBuilder.fullAuto(midAuto);
+    autoChooser.addOption("TwoCubeAutoMid", TwoCubeAutoMid);
+
+    Command TwoCubeAutoRight = autoBuilder.fullAuto(rightAuto);
+    autoChooser.addOption("TwoCubeAutoRight", TwoCubeAutoRight);
+  
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -64,6 +113,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return autoChooser.getSelected();
   }
 }

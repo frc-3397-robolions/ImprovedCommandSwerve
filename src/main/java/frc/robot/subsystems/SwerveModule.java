@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import static frc.robot.Constants.*;
 
 public class SwerveModule {
-  
 
   private static final double kModuleMaxAngularVelocity = MAX_ANGULAR_SPEED;
   private static final double kModuleMaxAngularAcceleration =

@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -33,6 +36,11 @@ public final class Constants {
     public static final double MAX_ANGULAR_SPEED = Math.PI;
     public static final double WHEEL_RADIUS = 0.0508;
     public static final int DRIVETRAIN_ENCODER_RESOLUTION = 4096;
+
+    public static final double AUTO_MAX_VEL = 3;
+    public static final double AUTO_MAX_ACCEL = 1;
+
+    public static HashMap<String, Command> AUTO_EVENT_MAP = new HashMap<>();
 
     static class VisionConstants {
         static final Transform3d robotToCam =
