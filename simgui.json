@@ -46,6 +46,15 @@
   },
   "NetworkTables": {
     "transitory": {
+      "AdvantageKit": {
+        "RealOutputs": {
+          "ActiveCommands": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
       "FMSInfo": {
         "open": true
       },
@@ -58,8 +67,7 @@
       "SmartDashboard": {
         "SendableChooser[0]": {
           "open": true
-        },
-        "open": true
+        }
       },
       "photonvision": {
         "Positioning Camera": {

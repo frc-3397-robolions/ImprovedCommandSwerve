@@ -6,9 +6,11 @@ package frc.robot;
 
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -86,6 +88,8 @@ public class RobotContainer {
     List<PathPlannerTrajectory> midAuto = PathPlanner.loadPathGroup("2CubeAutoMiddle", AUTO_MAX_VEL, AUTO_MAX_ACCEL);
     List<PathPlannerTrajectory> rightAuto = PathPlanner.loadPathGroup("2CubeAutoRight", AUTO_MAX_VEL, AUTO_MAX_ACCEL);
 
+    Logger.getInstance().recordOutput("Path", leftAuto.get(0));
+
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
     drivetrain::getPose, // Pose2d supplier
     drivetrain::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
@@ -113,6 +117,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return autoChooser.getSelected();
+    return new DriveCommand(drivetrain, 0.1, 0.1, 0).withTimeout(15);
   }
 }
