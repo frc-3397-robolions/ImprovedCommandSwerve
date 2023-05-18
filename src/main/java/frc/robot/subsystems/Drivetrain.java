@@ -10,11 +10,13 @@ import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator.Config;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,6 +26,8 @@ import static frc.robot.Constants.*;
 
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix.sensors.CANCoder;
@@ -51,7 +55,7 @@ public class Drivetrain extends SubsystemBase {
   
   public PhotonCameraWrapper pcw;
 
-  private Pose2d m_pose = new Pose2d();
+  private Pose2d m_pose = new Pose2d(1.95,4.43,new Rotation2d(0));
 
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -99,7 +103,20 @@ if (result.isPresent()) {
   m_poseEstimator.addVisionMeasurement(
           camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
 }
+Logger.getInstance().recordOutput("Pose", m_pose);
+Logger.getInstance().recordOutput("States", new SwerveModuleState[]{
+  m_frontLeft.getState(),
+  m_frontRight.getState(),
+  m_backLeft.getState(),
+  m_backRight.getState()
+});
   }
+public Pose2d getPose(){
+  return m_pose;
+}
+public void resetPose(Pose2d pose){
+  m_pose = pose;
+}
   /**
    * Method to drive the robot using joystick info.
    *
@@ -115,6 +132,35 @@ if (result.isPresent()) {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_SPEED);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_backLeft.setDesiredState(swerveModuleStates[2]);
+    m_backRight.setDesiredState(swerveModuleStates[3]);
+    Logger.getInstance().recordOutput("Desired States", new SwerveModuleState[]{
+      swerveModuleStates[0],
+      swerveModuleStates[1],
+      swerveModuleStates[2],
+      swerveModuleStates[3]});
+    // Logger.getInstance().recordOutput("Desired Poses", new double[]{
+    //   swerveModuleStates[0].angle.getRadians(),
+    //   swerveModuleStates[0].speedMetersPerSecond,
+    //   swerveModuleStates[1].angle.getRadians(),
+    //   swerveModuleStates[1].speedMetersPerSecond,
+    //   swerveModuleStates[2].angle.getRadians(),
+    //   swerveModuleStates[2].speedMetersPerSecond,
+    //   swerveModuleStates[3].angle.getRadians(),
+    //   swerveModuleStates[3].speedMetersPerSecond,
+    // });
+  }
+  public void driveFromChassisSpeeds(ChassisSpeeds speeds){
+    var swerveModuleStates = m_kinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_SPEED);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_backLeft.setDesiredState(swerveModuleStates[2]);
+    m_backRight.setDesiredState(swerveModuleStates[3]);
+  }
+  public void setModuleStates(SwerveModuleState[] swerveModuleStates){
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_backLeft.setDesiredState(swerveModuleStates[2]);

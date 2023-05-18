@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drivetrain;
+
 import static frc.robot.Constants.*;
 
 public class ArcadeDrive extends CommandBase {
@@ -31,9 +32,8 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     if(driverController.getStartButton())
       fieldRelative=!fieldRelative;
-
-    dt.drive(driverController.getLeftX()*MAX_SPEED
-      , driverController.getLeftY()*MAX_SPEED
+    dt.drive(driverController.getLeftY()*MAX_SPEED
+      , driverController.getLeftX()*MAX_SPEED
       , driverController.getRightX()*MAX_ANGULAR_SPEED
       , fieldRelative);
   }

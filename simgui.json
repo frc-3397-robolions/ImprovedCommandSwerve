@@ -40,11 +40,21 @@
   },
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/SendableChooser[0]": "String Chooser"
     }
   },
   "NetworkTables": {
     "transitory": {
+      "AdvantageKit": {
+        "RealOutputs": {
+          "ActiveCommands": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
       "FMSInfo": {
         "open": true
       },
@@ -53,6 +63,11 @@
       },
       "Shuffleboard": {
         "open": true
+      },
+      "SmartDashboard": {
+        "SendableChooser[0]": {
+          "open": true
+        }
       },
       "photonvision": {
         "Positioning Camera": {
