@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PhotonCameraWrapper;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 
 /** Represents a swerve drive style drivetrain. */
@@ -41,6 +43,11 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_SPEED_ID, BACK_RIGHT_ANGLE_ID);
 
   private final AHRS m_gyro = new AHRS(Port.kMXP);
+
+  private final CANCoder frontLeftEncoder = new CANCoder(23);
+  private final CANCoder frontRightEncoder = new CANCoder(21);
+  private final CANCoder backLeftEncoder = new CANCoder(22);
+  private final CANCoder backRightEncoder = new CANCoder(24);
   
   public PhotonCameraWrapper pcw;
 
@@ -65,13 +72,16 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain() {
     m_gyro.reset();
-
     pcw = new PhotonCameraWrapper();
   }
 
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("FL Pos", frontLeftEncoder.getAbsolutePosition());
+    SmartDashboard.putNumber("BL Pos", backLeftEncoder.getAbsolutePosition());
+    SmartDashboard.putNumber("FR Pos", frontRightEncoder.getAbsolutePosition());
+    SmartDashboard.putNumber("BR Pos", backRightEncoder.getAbsolutePosition());
     // This method will be called once per scheduler run
     m_pose=m_poseEstimator.update(
       m_gyro.getRotation2d(),

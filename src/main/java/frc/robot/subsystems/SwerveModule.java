@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -20,26 +21,28 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import static frc.robot.Constants.*;
 
+import java.util.HashMap;
+
 public class SwerveModule {
   
-
+  private static HashMap<Integer,Double> encoderOffsets = new HashMap<>(4);
   private static final double kModuleMaxAngularVelocity = MAX_ANGULAR_SPEED;
   private static final double kModuleMaxAngularAcceleration =
-      2 * Math.PI; // radians per second squared
+      2*Math.PI; // radians per second squared
 
   private final CANSparkMax m_driveMotor;
   private final CANSparkMax m_turningMotor;
 
   private final RelativeEncoder m_driveEncoder;
-  private final RelativeEncoder m_turningEncoder;
+  private final CANCoder m_turningEncoder;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_drivePIDController = new PIDController(0.01, 0, 0);
+  private final PIDController m_drivePIDController = new PIDController(0.1, 0, 0);
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final ProfiledPIDController m_turningPIDController =
       new ProfiledPIDController(
-          0.01,
+          0.005,
           0,
           0,
           new TrapezoidProfile.Constraints(
@@ -57,12 +60,16 @@ public class SwerveModule {
    */
   public SwerveModule(
       int driveMotorID,
-      int turningMotorID) {
+      int turningMotorID,
+      int cancoderID) {
+
+    encoderOffsets.put(21, 34.5);
+
     m_driveMotor = new CANSparkMax(driveMotorID,MotorType.kBrushless);
     m_turningMotor = new CANSparkMax(turningMotorID,MotorType.kBrushless);
 
     m_driveEncoder = m_driveMotor.getEncoder();
-    m_turningEncoder = m_turningMotor.getEncoder();
+    m_turningEncoder = new CANCoder(cancoderID);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -72,7 +79,7 @@ public class SwerveModule {
     // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
     // This is the the angle through an entire rotation (2 * pi) divided by the
     // encoder resolution.
-    m_turningEncoder.setPositionConversionFactor(2 * Math.PI);
+    m_turningEncoder.configMagnetOffset(cancoderID)
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -122,7 +129,7 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+    m_driveMotor.setVoltage(driveFeedforward);
+    m_turningMotor.setVoltage(turnOutput);
   }
 }

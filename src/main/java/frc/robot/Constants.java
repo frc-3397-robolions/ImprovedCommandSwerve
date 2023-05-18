@@ -18,7 +18,7 @@ import edu.wpi.first.math.geometry.Translation3d;
  */
 public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
-    public static final int OPERATOR_CONTROLLER_PORT = 0;
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
 
     public static final int BACK_LEFT_ANGLE_ID = 4;
     public static final int BACK_LEFT_SPEED_ID = 3;
@@ -37,11 +37,11 @@ public final class Constants {
     static class VisionConstants {
         static final Transform3d robotToCam =
                 new Transform3d(
-                        new Translation3d(0.5, 0.0, 0.5),
+                        new Translation3d(0.3, 0.0, 0),
                         new Rotation3d(
-                                0, 0,
+                                0, Math.PI/6,
                                 0)); // Cam mounted facing forward, half a meter forward of center, half a meter up
         // from center.
-        static final String cameraName = "Positioning Camera";
+        static final String cameraName = "Microsoft_LifeCam_HD-3000";
     }
 }

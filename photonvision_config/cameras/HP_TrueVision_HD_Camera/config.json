@@ -1,0 +1,11 @@
+{
+  "baseName" : "HP TrueVision HD Camera",
+  "uniqueName" : "HP_TrueVision_HD_Camera",
+  "nickname" : "HP_TrueVision_HD_Camera",
+  "FOV" : 70.0,
+  "path" : "\\\\?\\usb#vid_30c9&pid_0013&mi_00#6&2e17a80f&0&0000#{e5323777-f976-4f5b-9b55-b94699c46e44}\\global",
+  "cameraType" : "UsbCamera",
+  "currentPipelineIndex" : 0,
+  "calibrations" : [ ],
+  "streamIndex" : 0
+}
