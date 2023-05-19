@@ -62,28 +62,45 @@ public class SwerveModule extends SubsystemBase{
    * @param driveMotorID CAN ID for the drive motor.
    * @param turningMotorID CAN ID for the turning motor.
    */
-  public SwerveModule(
-      int driveMotorID,
-      int turningMotorID,
-      int cancoderID) {
+  public SwerveModule(String moduleID) {
 
-    encoderOffsets.put(21, 34.5);
-
-    m_driveMotor = new CANSparkMax(driveMotorID,MotorType.kBrushless);
-    m_turningMotor = new CANSparkMax(turningMotorID,MotorType.kBrushless);
-
+    switch(moduleID){
+      case("fl"):
+      m_driveMotor = new CANSparkMax(FRONT_LEFT_SPEED_ID,MotorType.kBrushless);
+      m_turningMotor = new CANSparkMax(FRONT_LEFT_ANGLE_ID,MotorType.kBrushless);
+      m_turningEncoder = new CANCoder(23);
+      m_turningEncoder.configMagnetOffset(34.5);
+      break;
+      case("fr"):
+      m_driveMotor = new CANSparkMax(FRONT_RIGHT_SPEED_ID,MotorType.kBrushless);
+      m_turningMotor = new CANSparkMax(FRONT_RIGHT_ANGLE_ID,MotorType.kBrushless);
+      m_turningEncoder = new CANCoder(21);
+      m_turningEncoder.configMagnetOffset(192.65);
+      break;
+      case("bl"):
+      m_driveMotor = new CANSparkMax(BACK_LEFT_SPEED_ID,MotorType.kBrushless);
+      m_turningMotor = new CANSparkMax(BACK_LEFT_ANGLE_ID,MotorType.kBrushless);
+      m_turningEncoder = new CANCoder(22);
+      m_turningEncoder.configMagnetOffset(254.4);
+      break;
+      case("br"):
+      m_driveMotor = new CANSparkMax(BACK_RIGHT_SPEED_ID,MotorType.kBrushless);
+      m_turningMotor = new CANSparkMax(BACK_RIGHT_ANGLE_ID,MotorType.kBrushless);
+      m_turningEncoder = new CANCoder(24);
+      m_turningEncoder.configMagnetOffset(159.2);
+      break;
+      default:
+      throw new Error("Module must be initialized with an ID");
+    }
     m_driveEncoder = m_driveMotor.getEncoder();
-    m_turningEncoder = new CANCoder(cancoderID);
+    
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
     // resolution.
     m_driveEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
 
-    // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
-    // This is the the angle through an entire rotation (2 * pi) divided by the
-    // encoder resolution.
-    m_turningEncoder.configMagnetOffset(cancoderID);
+    
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -97,7 +114,7 @@ public class SwerveModule extends SubsystemBase{
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-        m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
+        m_driveEncoder.getVelocity(), Rotation2d.fromDegrees(m_turningEncoder.getAbsolutePosition()));
   }
 
   /**
@@ -107,7 +124,7 @@ public class SwerveModule extends SubsystemBase{
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-        m_driveEncoder.getPosition()*2*Math.PI*Units.inchesToMeters(2), new Rotation2d(m_turningEncoder.getPosition()));
+        m_driveEncoder.getPosition(), Rotation2d.fromDegrees(m_turningEncoder.getAbsolutePosition()));
   }
 
   /**
@@ -118,11 +135,11 @@ public class SwerveModule extends SubsystemBase{
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
+        SwerveModuleState.optimize(desiredState, Rotation2d.fromDegrees(m_turningEncoder.getAbsolutePosition()));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
-        m_drivePIDController.calculate(m_driveEncoder.getVelocity(), state.speedMetersPerSecond);
+        m_drivePIDController.calculate(m_driveEncoder.getVelocity()/60, state.speedMetersPerSecond);
 
     final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
 
@@ -133,7 +150,7 @@ public class SwerveModule extends SubsystemBase{
     //final double turnFeedforward =
         //m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(driveFeedforward);
+    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
     m_turningMotor.setVoltage(turnOutput);
   }
 }
