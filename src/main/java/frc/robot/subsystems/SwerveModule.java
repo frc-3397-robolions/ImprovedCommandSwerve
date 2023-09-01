@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -15,15 +16,19 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import static frc.robot.Constants.*;
 
 import java.util.HashMap;
 
-public class SwerveModule {
+public class SwerveModule extends SubsystemBase{
   
   private static HashMap<Integer,Double> encoderOffsets = new HashMap<>(4);
   private static final double kModuleMaxAngularVelocity = MAX_ANGULAR_SPEED;
@@ -66,7 +71,7 @@ public class SwerveModule {
 
     m_driveMotor = new CANSparkMax(driveMotorID,MotorType.kBrushless);
     m_turningMotor = new CANSparkMax(turningMotorID,MotorType.kBrushless);
-
+    
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = new CANCoder(cancoderID);
 

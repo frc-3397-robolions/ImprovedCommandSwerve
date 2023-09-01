@@ -41,17 +41,12 @@ public class Drivetrain extends SubsystemBase {
   private final Translation2d m_backLeftLocation = new Translation2d(-1, 1.5);
   private final Translation2d m_backRightLocation = new Translation2d(-1, -1.5);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_SPEED_ID, FRONT_LEFT_ANGLE_ID);
-  private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_SPEED_ID, FRONT_RIGHT_ANGLE_ID);
-  private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_SPEED_ID, BACK_LEFT_ANGLE_ID);
-  private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_SPEED_ID, BACK_RIGHT_ANGLE_ID);
+  private final SwerveModule m_frontLeft = new SwerveModule("fl");
+  private final SwerveModule m_frontRight = new SwerveModule("fr");
+  private final SwerveModule m_backLeft = new SwerveModule("bl");
+  private final SwerveModule m_backRight = new SwerveModule("br");
 
   private final AHRS m_gyro = new AHRS(Port.kMXP);
-
-  private final CANCoder frontLeftEncoder = new CANCoder(23);
-  private final CANCoder frontRightEncoder = new CANCoder(21);
-  private final CANCoder backLeftEncoder = new CANCoder(22);
-  private final CANCoder backRightEncoder = new CANCoder(24);
   
   public PhotonCameraWrapper pcw;
 
@@ -82,10 +77,6 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("FL Pos", frontLeftEncoder.getAbsolutePosition());
-    SmartDashboard.putNumber("BL Pos", backLeftEncoder.getAbsolutePosition());
-    SmartDashboard.putNumber("FR Pos", frontRightEncoder.getAbsolutePosition());
-    SmartDashboard.putNumber("BR Pos", backRightEncoder.getAbsolutePosition());
     // This method will be called once per scheduler run
     m_pose=m_poseEstimator.update(
       m_gyro.getRotation2d(),
