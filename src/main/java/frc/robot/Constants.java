@@ -33,6 +33,8 @@ public final class Constants {
     public static final int FRONT_RIGHT_ANGLE_ID = 2;
     public static final int FRONT_RIGHT_SPEED_ID = 1;
 
+    public final static double SWERVE_MAX_VOLTS = 4.95;
+    
     public static final double MAX_SPEED = 3;
     public static final double MAX_ANGULAR_SPEED = Math.PI;
     public static final double WHEEL_RADIUS = Units.inchesToMeters(2);
